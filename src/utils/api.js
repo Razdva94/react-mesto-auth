@@ -45,7 +45,7 @@ class Api {
     });
   }
 
-  changeAvatarImage(avatarUrl) {
+  changeAvatarImage({ avatarUrl }) {
     return this._request(`${this._url}/users/me/avatar`, {
       method: "PATCH",
       headers: this._headers,
