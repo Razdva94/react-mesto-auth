@@ -1,6 +1,6 @@
 import "../pages/index.css";
 import React from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -207,7 +207,7 @@ function App() {
           />
         )}
       />
-      <Route path="/*" element={<ProtectedRouteElement loggedIn={false} />} />
+      <Route path="/*" element={<Navigate to="/sign-in" replace />} />
     </Routes>
   );
 }
