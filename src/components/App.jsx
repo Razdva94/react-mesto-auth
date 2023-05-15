@@ -30,9 +30,6 @@ function App() {
         console.log(err);
       });
   }
-  React.useEffect(() => {
-    getProfileAndCardsInfo();
-  }, []);
 
   function handleCardDelete(card) {
     api
@@ -103,8 +100,8 @@ function App() {
       .changeProfileInfo({ name, about })
       .then((user) => {
         setCurrentUser(user);
+        closeAllPopups();
       })
-      .then(() => closeAllPopups())
       .catch((err) => {
         console.log(err);
       })
@@ -143,7 +140,6 @@ function App() {
     authApi
       .getValidation()
       .then((res) => {
-        console.log(res);
         setEmail(res.data.email);
         setLoggedIn(true);
         navigate("/");
@@ -152,6 +148,10 @@ function App() {
         console.log(err);
       });
   }, [navigate]);
+
+  React.useEffect(() => {
+    if (loggedIn) getProfileAndCardsInfo();
+  }, [loggedIn]);
 
   return (
     <Routes>
@@ -207,6 +207,7 @@ function App() {
           />
         )}
       />
+      <Route path="/*" element={<ProtectedRouteElement loggedIn={false} />} />
     </Routes>
   );
 }

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import headerLogo from "../images/Vector.svg";
 
 function Header({ isAuthorized, register, login, email }) {
-  console.log(email);
   const navigate = useNavigate();
   function handleClickEnter() {
     navigate("/sign-in", { replace: true });
