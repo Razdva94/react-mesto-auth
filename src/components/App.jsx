@@ -1,5 +1,6 @@
 import "../pages/index.css";
 import React from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -10,8 +11,13 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import api from "../utils/api";
+import Register from "./Register";
+import Login from "./Login";
+import ProtectedRouteElement from "./ProtectedRoute";
+import authApi from "../utils/authApi";
 
 function App() {
+  const navigate = useNavigate();
   const [cards, setCards] = React.useState([]);
   const [currentUser, setCurrentUser] = React.useState(null);
   function getProfileAndCardsInfo() {
@@ -128,44 +134,80 @@ function App() {
       })
       .finally(() => setIsLoading(false));
   }
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  function handleLoggedIn(value) {
+    setLoggedIn(value);
+  }
+  const [email, setEmail] = React.useState("");
+  React.useEffect(() => {
+    authApi
+      .getValidation()
+      .then((res) => {
+        console.log(res);
+        setEmail(res.data.email);
+        setLoggedIn(true);
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [navigate]);
+
   return (
-    <CurrentUserContext.Provider value={currentUser}>
-      <div className="body">
-        <div className="page">
-          <Header />
-          <Main
-            onEditProfile={handleEditProfileClick}
-            onEditAvatar={handleEditAvatarClick}
-            onAddPlace={handleAddPlaceClick}
-            onCardClick={handleCardClick}
-            onCardLike={handleCardLike}
-            onCardDelete={handleCardDelete}
-            cards={cards}
+    <Routes>
+      <Route path="/sign-up" element={<Register />} />
+      <Route
+        path="/sign-in"
+        element={<Login handleLoggedIn={handleLoggedIn} />}
+      />
+      <Route
+        path="/"
+        element={(
+          <ProtectedRouteElement
+            component={(
+              <CurrentUserContext.Provider value={currentUser}>
+                <div className="body">
+                  <div className="page">
+                    <Header email={email} isAuthorized />
+                    <Main
+                      onEditProfile={handleEditProfileClick}
+                      onEditAvatar={handleEditAvatarClick}
+                      onAddPlace={handleAddPlaceClick}
+                      onCardClick={handleCardClick}
+                      onCardLike={handleCardLike}
+                      onCardDelete={handleCardDelete}
+                      cards={cards}
+                    />
+                    <Footer />
+                    <EditProfilePopup
+                      isOpened={isEditProfilePopupOpen}
+                      onClose={closeAllPopups}
+                      onUpdateUser={handleUpdateUser}
+                      onLoadingState={isLoading}
+                    />
+                    <EditAvatarPopup
+                      isOpened={isEditAvatarPopupOpen}
+                      onClose={closeAllPopups}
+                      onUpdateAvatar={handleUpdateAvatar}
+                      onLoadingState={isLoading}
+                    />
+                    <AddPlacePopup
+                      isOpened={isAddPlacePopupOpen}
+                      onClose={closeAllPopups}
+                      onAddPlace={handleAddPlaceSubmit}
+                      onLoadingState={isLoading}
+                    />
+                    <PopupWithForm name="delete" title="Вы уверены?" />
+                    <ImagePopup onClose={closeAllPopups} card={selectedCard} />
+                  </div>
+                </div>
+              </CurrentUserContext.Provider>
+            )}
+            loggedIn={loggedIn}
           />
-          <Footer />
-          <EditProfilePopup
-            isOpened={isEditProfilePopupOpen}
-            onClose={closeAllPopups}
-            onUpdateUser={handleUpdateUser}
-            onLoadingState={isLoading}
-          />
-          <EditAvatarPopup
-            isOpened={isEditAvatarPopupOpen}
-            onClose={closeAllPopups}
-            onUpdateAvatar={handleUpdateAvatar}
-            onLoadingState={isLoading}
-          />
-          <AddPlacePopup
-            isOpened={isAddPlacePopupOpen}
-            onClose={closeAllPopups}
-            onAddPlace={handleAddPlaceSubmit}
-            onLoadingState={isLoading}
-          />
-          <PopupWithForm name="delete" title="Вы уверены?" />
-          <ImagePopup onClose={closeAllPopups} card={selectedCard} />
-        </div>
-      </div>
-    </CurrentUserContext.Provider>
+        )}
+      />
+    </Routes>
   );
 }
 

@@ -3,6 +3,8 @@
   margin-left: 200px;
   margin-right: 200px;
   border-bottom: 1px rgba(84, 84, 84, .7) solid;
+  display: flex;
+  flex-direction: row;
   
 }
 @media screen and (max-width: 1060px) {
